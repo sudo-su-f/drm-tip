@@ -1,0 +1,258 @@
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_res_cursor.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_res_cursor.h
+index acfa207cf970..6546552e596c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_res_cursor.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_res_cursor.h
+@@ -30,12 +30,15 @@
+ #include <drm/ttm/ttm_resource.h>
+ #include <drm/ttm/ttm_range_manager.h>
+ 
++#include "amdgpu_vram_mgr.h"
++
+ /* state back for walking over vram_mgr and gtt_mgr allocations */
+ struct amdgpu_res_cursor {
+ 	uint64_t		start;
+ 	uint64_t		size;
+ 	uint64_t		remaining;
+-	struct drm_mm_node	*node;
++	void			*node;
++	uint32_t		mem_type;
+ };
+ 
+ /**
+@@ -52,27 +55,63 @@ static inline void amdgpu_res_first(struct ttm_resource *res,
+ 				    uint64_t start, uint64_t size,
+ 				    struct amdgpu_res_cursor *cur)
+ {
++	struct drm_buddy_block *block;
++	struct list_head *head, *next;
+ 	struct drm_mm_node *node;
+ 
+-	if (!res || res->mem_type == TTM_PL_SYSTEM) {
+-		cur->start = start;
+-		cur->size = size;
+-		cur->remaining = size;
+-		cur->node = NULL;
+-		WARN_ON(res && start + size > res->num_pages << PAGE_SHIFT);
+-		return;
+-	}
++	if (!res)
++		goto fallback;
+ 
+ 	BUG_ON(start + size > res->num_pages << PAGE_SHIFT);
+ 
+-	node = to_ttm_range_mgr_node(res)->mm_nodes;
+-	while (start >= node->size << PAGE_SHIFT)
+-		start -= node++->size << PAGE_SHIFT;
++	cur->mem_type = res->mem_type;
++
++	switch (cur->mem_type) {
++	case TTM_PL_VRAM:
++		head = &to_amdgpu_vram_mgr_resource(res)->blocks;
++
++		block = list_first_entry_or_null(head,
++						 struct drm_buddy_block,
++						 link);
++		if (!block)
++			goto fallback;
++
++		while (start >= amdgpu_vram_mgr_block_size(block)) {
++			start -= amdgpu_vram_mgr_block_size(block);
++
++			next = block->link.next;
++			if (next != head)
++				block = list_entry(next, struct drm_buddy_block, link);
++		}
++
++		cur->start = amdgpu_vram_mgr_block_start(block) + start;
++		cur->size = min(amdgpu_vram_mgr_block_size(block) - start, size);
++		cur->remaining = size;
++		cur->node = block;
++		break;
++	case TTM_PL_TT:
++		node = to_ttm_range_mgr_node(res)->mm_nodes;
++		while (start >= node->size << PAGE_SHIFT)
++			start -= node++->size << PAGE_SHIFT;
++
++		cur->start = (node->start << PAGE_SHIFT) + start;
++		cur->size = min((node->size << PAGE_SHIFT) - start, size);
++		cur->remaining = size;
++		cur->node = node;
++		break;
++	default:
++		goto fallback;
++	}
+ 
+-	cur->start = (node->start << PAGE_SHIFT) + start;
+-	cur->size = min((node->size << PAGE_SHIFT) - start, size);
++	return;
++
++fallback:
++	cur->start = start;
++	cur->size = size;
+ 	cur->remaining = size;
+-	cur->node = node;
++	cur->node = NULL;
++	WARN_ON(res && start + size > res->num_pages << PAGE_SHIFT);
++	return;
+ }
+ 
+ /**
+@@ -85,7 +124,9 @@ static inline void amdgpu_res_first(struct ttm_resource *res,
+  */
+ static inline void amdgpu_res_next(struct amdgpu_res_cursor *cur, uint64_t size)
+ {
+-	struct drm_mm_node *node = cur->node;
++	struct drm_buddy_block *block;
++	struct drm_mm_node *node;
++	struct list_head *next;
+ 
+ 	BUG_ON(size > cur->remaining);
+ 
+@@ -99,9 +140,27 @@ static inline void amdgpu_res_next(struct amdgpu_res_cursor *cur, uint64_t size)
+ 		return;
+ 	}
+ 
+-	cur->node = ++node;
+-	cur->start = node->start << PAGE_SHIFT;
+-	cur->size = min(node->size << PAGE_SHIFT, cur->remaining);
++	switch (cur->mem_type) {
++	case TTM_PL_VRAM:
++		block = cur->node;
++
++		next = block->link.next;
++		block = list_entry(next, struct drm_buddy_block, link);
++
++		cur->node = block;
++		cur->start = amdgpu_vram_mgr_block_start(block);
++		cur->size = min(amdgpu_vram_mgr_block_size(block), cur->remaining);
++		break;
++	case TTM_PL_TT:
++		node = cur->node;
++
++		cur->node = ++node;
++		cur->start = node->start << PAGE_SHIFT;
++		cur->size = min(node->size << PAGE_SHIFT, cur->remaining);
++		break;
++	default:
++		return;
++	}
+ }
+ 
+ #endif
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.h
+index 9120ae80ef52..6a70818039dd 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.h
+@@ -26,6 +26,7 @@
+ 
+ #include <linux/dma-direction.h>
+ #include <drm/gpu_scheduler.h>
++#include "amdgpu_vram_mgr.h"
+ #include "amdgpu.h"
+ 
+ #define AMDGPU_PL_GDS		(TTM_PL_PRIV + 0)
+@@ -38,15 +39,6 @@
+ 
+ #define AMDGPU_POISON	0xd0bed0be
+ 
+-struct amdgpu_vram_mgr {
+-	struct ttm_resource_manager manager;
+-	struct drm_mm mm;
+-	spinlock_t lock;
+-	struct list_head reservations_pending;
+-	struct list_head reserved_pages;
+-	atomic64_t vis_usage;
+-};
+-
+ struct amdgpu_gtt_mgr {
+ 	struct ttm_resource_manager manager;
+ 	struct drm_mm mm;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vram_mgr.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vram_mgr.c
+index ab08d4ecb21a..28ec5f8ac1c1 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vram_mgr.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vram_mgr.c
+@@ -395,11 +395,11 @@ static int amdgpu_vram_mgr_new(struct ttm_resource_manager *man,
+ 	unsigned long pages_per_block;
+ 	int r;
+ 
+-	lpfn = place->lpfn << PAGE_SHIFT;
++	lpfn = (u64)place->lpfn << PAGE_SHIFT;
+ 	if (!lpfn)
+ 		lpfn = man->size;
+ 
+-	fpfn = place->fpfn << PAGE_SHIFT;
++	fpfn = (u64)place->fpfn << PAGE_SHIFT;
+ 
+ 	max_bytes = adev->gmc.mc_vram_size;
+ 	if (tbo->type != ttm_bo_type_kernel)
+@@ -439,12 +439,12 @@ static int amdgpu_vram_mgr_new(struct ttm_resource_manager *man,
+ 		/* Allocate blocks in desired range */
+ 		vres->flags |= DRM_BUDDY_RANGE_ALLOCATION;
+ 
+-	remaining_size = vres->base.num_pages << PAGE_SHIFT;
++	remaining_size = (u64)vres->base.num_pages << PAGE_SHIFT;
+ 
+ 	mutex_lock(&mgr->lock);
+ 	while (remaining_size) {
+ 		if (tbo->page_alignment)
+-			min_block_size = tbo->page_alignment << PAGE_SHIFT;
++			min_block_size = (u64)tbo->page_alignment << PAGE_SHIFT;
+ 		else
+ 			min_block_size = mgr->default_page_size;
+ 
+@@ -453,12 +453,12 @@ static int amdgpu_vram_mgr_new(struct ttm_resource_manager *man,
+ 		/* Limit maximum size to 2GiB due to SG table limitations */
+ 		size = min(remaining_size, 2ULL << 30);
+ 
+-		if (size >= pages_per_block << PAGE_SHIFT)
+-			min_block_size = pages_per_block << PAGE_SHIFT;
++		if (size >= (u64)pages_per_block << PAGE_SHIFT)
++			min_block_size = (u64)pages_per_block << PAGE_SHIFT;
+ 
+ 		cur_size = size;
+ 
+-		if (fpfn + size != place->lpfn << PAGE_SHIFT) {
++		if (fpfn + size != (u64)place->lpfn << PAGE_SHIFT) {
+ 			/*
+ 			 * Except for actual range allocation, modify the size and
+ 			 * min_block_size conforming to continuous flag enablement
+@@ -498,7 +498,7 @@ static int amdgpu_vram_mgr_new(struct ttm_resource_manager *man,
+ 		LIST_HEAD(temp);
+ 
+ 		trim_list = &vres->blocks;
+-		original_size = vres->base.num_pages << PAGE_SHIFT;
++		original_size = (u64)vres->base.num_pages << PAGE_SHIFT;
+ 
+ 		/*
+ 		 * If size value is rounded up to min_block_size, trim the last
+@@ -525,16 +525,22 @@ static int amdgpu_vram_mgr_new(struct ttm_resource_manager *man,
+ 			list_splice_tail(trim_list, &vres->blocks);
+ 	}
+ 
+-	list_for_each_entry(block, &vres->blocks, link)
+-		vis_usage += amdgpu_vram_mgr_vis_size(adev, block);
++	vres->base.start = 0;
++	list_for_each_entry(block, &vres->blocks, link) {
++		unsigned long start;
+ 
+-	block = amdgpu_vram_mgr_first_block(&vres->blocks);
+-	if (!block) {
+-		r = -EINVAL;
+-		goto error_fini;
+-	}
++		start = amdgpu_vram_mgr_block_start(block) +
++			amdgpu_vram_mgr_block_size(block);
++		start >>= PAGE_SHIFT;
+ 
+-	vres->base.start = amdgpu_vram_mgr_block_start(block) >> PAGE_SHIFT;
++		if (start > vres->base.num_pages)
++			start -= vres->base.num_pages;
++		else
++			start = 0;
++		vres->base.start = max(vres->base.start, start);
++
++		vis_usage += amdgpu_vram_mgr_vis_size(adev, block);
++	}
+ 
+ 	if (amdgpu_is_vram_mgr_blocks_contiguous(&vres->blocks))
+ 		vres->base.placement |= TTM_PL_FLAG_CONTIGUOUS;
