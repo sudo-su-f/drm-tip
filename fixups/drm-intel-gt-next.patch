@@ -26,3 +26,16 @@ index 2fccb19ed9f7..a5cdf6662d01 100644
  			 u64 size, u64 alignment, u64 flags);
  
  int i915_gem_object_unbind(struct drm_i915_gem_object *obj,
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
+index d726acfcac85..b59fb03ed274 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt.c
+@@ -835,7 +835,7 @@ int intel_gt_probe_all(struct drm_i915_private *i915)
+ 	 */
+ 	gt->i915 = i915;
+ 	gt->name = "Primary GT";
+-	gt->info.engine_mask = INTEL_INFO(i915)->platform_engine_mask;
++	gt->info.engine_mask = RUNTIME_INFO(i915)->platform_engine_mask;
+ 
+ 	drm_dbg(&i915->drm, "Setting up %s\n", gt->name);
+ 	ret = intel_gt_tile_setup(gt, phys_addr);
