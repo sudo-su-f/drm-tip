@@ -1,9 +1,9 @@
 diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 97049a26fca2..5e445c61252d 100644
+index 807ceae3d336..28c428e9c530 100644
 --- a/drivers/gpu/drm/drm_fb_helper.c
 +++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -1942,6 +1942,7 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
- 					 int preferred_bpp)
+@@ -1954,6 +1954,7 @@ static int drm_fb_helper_find_sizes(struct drm_fb_helper *fb_helper,
+ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper)
  {
  	struct drm_client_dev *client = &fb_helper->client;
 +	struct drm_device *dev = fb_helper->dev;
