@@ -1,0 +1,26 @@
+diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
+index eb5e6a975cc3..aadb74de52bc 100644
+--- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
++++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
+@@ -603,7 +603,7 @@ static int jpeg_v2_5_process_interrupt(struct amdgpu_device *adev,
+ 
+ 	switch (entry->src_id) {
+ 	case VCN_2_0__SRCID__JPEG_DECODE:
+-		amdgpu_fence_process(&adev->jpeg.inst[ip_instance].ring_dec);
++		amdgpu_fence_process(adev->jpeg.inst[ip_instance].ring_dec);
+ 		break;
+ 	default:
+ 		DRM_ERROR("Unhandled interrupt: %d %d\n",
+diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v4_0.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v4_0.c
+index cdd07aa40ab4..a707d407fbd0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/jpeg_v4_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v4_0.c
+@@ -688,7 +688,7 @@ static int jpeg_v4_0_process_interrupt(struct amdgpu_device *adev,
+ 
+ 	switch (entry->src_id) {
+ 	case VCN_4_0__SRCID__JPEG_DECODE:
+-		amdgpu_fence_process(&adev->jpeg.inst->ring_dec);
++		amdgpu_fence_process(adev->jpeg.inst->ring_dec);
+ 		break;
+ 	default:
+ 		DRM_DEV_ERROR(adev->dev, "Unhandled interrupt: %d %d\n",
