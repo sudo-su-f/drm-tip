@@ -3137,6 +3137,7 @@ CONFIG_PINCTRL_PFC_R8A77951=y
 CONFIG_PINCTRL_PFC_R8A77965=y
 CONFIG_PINCTRL_PFC_R8A77960=y
 CONFIG_PINCTRL_PFC_R8A77980=y
+CONFIG_PINCTRL_RZG2L=y
 # end of Renesas pinctrl drivers
 
 CONFIG_PINCTRL_SAMSUNG=y
@@ -3740,6 +3741,7 @@ CONFIG_MFD_SEC_CORE=y
 # CONFIG_MFD_SM501 is not set
 # CONFIG_MFD_SKY81452 is not set
 # CONFIG_MFD_SC27XX_PMIC is not set
+# CONFIG_RZ_MTU3 is not set
 # CONFIG_MFD_STMPE is not set
 CONFIG_MFD_SUN6I_PRCM=y
 CONFIG_MFD_SYSCON=y
@@ -3907,7 +3909,215 @@ CONFIG_CEC_NOTIFIER=y
 # CONFIG_MEDIA_CEC_SUPPORT is not set
 # end of CEC support
 
-# CONFIG_MEDIA_SUPPORT is not set
+CONFIG_MEDIA_SUPPORT=m
+CONFIG_MEDIA_SUPPORT_FILTER=y
+CONFIG_MEDIA_SUBDRV_AUTOSELECT=y
+
+#
+# Media device types
+#
+# CONFIG_MEDIA_CAMERA_SUPPORT is not set
+# CONFIG_MEDIA_ANALOG_TV_SUPPORT is not set
+# CONFIG_MEDIA_DIGITAL_TV_SUPPORT is not set
+# CONFIG_MEDIA_RADIO_SUPPORT is not set
+# CONFIG_MEDIA_SDR_SUPPORT is not set
+CONFIG_MEDIA_PLATFORM_SUPPORT=y
+# CONFIG_MEDIA_TEST_SUPPORT is not set
+# end of Media device types
+
+CONFIG_VIDEO_DEV=m
+CONFIG_MEDIA_CONTROLLER=y
+
+#
+# Video4Linux options
+#
+CONFIG_VIDEO_V4L2_I2C=y
+CONFIG_VIDEO_V4L2_SUBDEV_API=y
+# CONFIG_VIDEO_ADV_DEBUG is not set
+# CONFIG_VIDEO_FIXED_MINOR_RANGES is not set
+# end of Video4Linux options
+
+#
+# Media controller options
+#
+# end of Media controller options
+
+#
+# Media drivers
+#
+
+#
+# Drivers filtered as selected at 'Filter media drivers'
+#
+
+#
+# Media drivers
+#
+# CONFIG_MEDIA_USB_SUPPORT is not set
+# CONFIG_MEDIA_PCI_SUPPORT is not set
+CONFIG_MEDIA_PLATFORM_DRIVERS=y
+# CONFIG_V4L_PLATFORM_DRIVERS is not set
+CONFIG_V4L_MEM2MEM_DRIVERS=y
+# CONFIG_VIDEO_MEM2MEM_DEINTERLACE is not set
+
+#
+# Allegro DVT media platform drivers
+#
+# CONFIG_VIDEO_ALLEGRO_DVT is not set
+
+#
+# Amlogic media platform drivers
+#
+# CONFIG_VIDEO_MESON_GE2D is not set
+
+#
+# Amphion drivers
+#
+
+#
+# Aspeed media platform drivers
+#
+
+#
+# Atmel media platform drivers
+#
+
+#
+# Cadence media platform drivers
+#
+# CONFIG_VIDEO_CADENCE_CSI2RX is not set
+# CONFIG_VIDEO_CADENCE_CSI2TX is not set
+
+#
+# Chips&Media media platform drivers
+#
+
+#
+# Intel media platform drivers
+#
+
+#
+# Marvell media platform drivers
+#
+
+#
+# Mediatek media platform drivers
+#
+# CONFIG_VIDEO_MEDIATEK_VPU is not set
+
+#
+# Microchip Technology, Inc. media platform drivers
+#
+
+#
+# Nuvoton media platform drivers
+#
+
+#
+# NVidia media platform drivers
+#
+# CONFIG_VIDEO_TEGRA_VDE is not set
+
+#
+# NXP media platform drivers
+#
+
+#
+# Qualcomm media platform drivers
+#
+# CONFIG_VIDEO_QCOM_VENUS is not set
+
+#
+# Renesas media platform drivers
+#
+CONFIG_VIDEO_RENESAS_FCP=m
+# CONFIG_VIDEO_RENESAS_FDP1 is not set
+# CONFIG_VIDEO_RENESAS_JPU is not set
+CONFIG_VIDEO_RENESAS_VSP1=m
+
+#
+# Rockchip media platform drivers
+#
+# CONFIG_VIDEO_ROCKCHIP_RGA is not set
+
+#
+# Samsung media platform drivers
+#
+# CONFIG_VIDEO_SAMSUNG_EXYNOS_GSC is not set
+# CONFIG_VIDEO_SAMSUNG_S5P_G2D is not set
+# CONFIG_VIDEO_SAMSUNG_S5P_JPEG is not set
+# CONFIG_VIDEO_SAMSUNG_S5P_MFC is not set
+
+#
+# STMicroelectronics media platform drivers
+#
+
+#
+# Sunxi media platform drivers
+#
+# CONFIG_VIDEO_SUN8I_DEINTERLACE is not set
+# CONFIG_VIDEO_SUN8I_ROTATE is not set
+
+#
+# Texas Instruments drivers
+#
+
+#
+# Verisilicon media platform drivers
+#
+# CONFIG_VIDEO_HANTRO is not set
+
+#
+# VIA media platform drivers
+#
+
+#
+# Xilinx media platform drivers
+#
+CONFIG_VIDEOBUF2_CORE=m
+CONFIG_VIDEOBUF2_V4L2=m
+CONFIG_VIDEOBUF2_MEMOPS=m
+CONFIG_VIDEOBUF2_DMA_CONTIG=m
+CONFIG_VIDEOBUF2_VMALLOC=m
+# end of Media drivers
+
+CONFIG_MEDIA_HIDE_ANCILLARY_SUBDRV=y
+
+#
+# Media ancillary drivers
+#
+
+#
+# IR I2C driver auto-selected by 'Autoselect ancillary drivers'
+#
+CONFIG_VIDEO_IR_I2C=m
+
+#
+# audio, video and radio I2C drivers auto-selected by 'Autoselect ancillary drivers'
+#
+
+#
+# Video and audio decoders
+#
+
+#
+# Video serializers and deserializers
+#
+# CONFIG_VIDEO_DS90UB913 is not set
+# CONFIG_VIDEO_DS90UB953 is not set
+# CONFIG_VIDEO_DS90UB960 is not set
+# end of Video serializers and deserializers
+
+#
+# SPI I2C drivers auto-selected by 'Autoselect ancillary drivers'
+#
+
+#
+# Media SPI Adapters
+#
+# CONFIG_VIDEO_GS1662 is not set
+# end of Media SPI Adapters
+# end of Media ancillary drivers
 
 #
 # Graphics support
@@ -4037,7 +4247,9 @@ CONFIG_DRM_RCAR_LVDS=m
 CONFIG_DRM_RCAR_USE_MIPI_DSI=y
 CONFIG_DRM_RCAR_MIPI_DSI=m
 CONFIG_DRM_RZG2L_MIPI_DSI=m
+CONFIG_DRM_RCAR_VSP=y
 CONFIG_DRM_RCAR_WRITEBACK=y
+CONFIG_DRM_RZG2L_DU=m
 # CONFIG_DRM_SHMOBILE is not set
 CONFIG_DRM_SUN4I=m
 CONFIG_DRM_SUN6I_DSI=m
@@ -4576,6 +4788,7 @@ CONFIG_SND_SOC_SAMSUNG=y
 #
 # CONFIG_SND_SOC_SH4_FSI is not set
 CONFIG_SND_SOC_RCAR=y
+# CONFIG_SND_SOC_RZ is not set
 # end of SoC Audio support for Renesas SoCs
 
 # CONFIG_SND_SOC_SOF_TOPLEVEL is not set
@@ -5194,6 +5407,7 @@ CONFIG_USB_SNP_UDC_PLAT=y
 # CONFIG_USB_G_MULTI is not set
 # CONFIG_USB_G_HID is not set
 # CONFIG_USB_G_DBGP is not set
+# CONFIG_USB_G_WEBCAM is not set
 # CONFIG_USB_RAW_GADGET is not set
 # end of USB Gadget precomposed configurations
 
@@ -5528,6 +5742,7 @@ CONFIG_QCOM_BAM_DMA=y
 CONFIG_RENESAS_DMA=y
 CONFIG_RCAR_DMAC=y
 # CONFIG_RENESAS_USB_DMAC is not set
+# CONFIG_RZ_DMAC is not set
 
 #
 # DMA Clients
@@ -5971,9 +6186,11 @@ CONFIG_CLK_R8A7795=y
 CONFIG_CLK_R8A77960=y
 CONFIG_CLK_R8A77965=y
 CONFIG_CLK_R8A77980=y
+CONFIG_CLK_R9A07G044=y
 CONFIG_CLK_RCAR_CPG_LIB=y
 CONFIG_CLK_RCAR_GEN3_CPG=y
 # CONFIG_CLK_RCAR_USB2_CLOCK_SEL is not set
+CONFIG_CLK_RZG2L=y
 CONFIG_CLK_RENESAS_CPG_MSSR=y
 CONFIG_CLK_RENESAS_DIV6=y
 CONFIG_COMMON_CLK_ROCKCHIP=y
@@ -6205,6 +6422,7 @@ CONFIG_QCOM_SMEM=y
 
 CONFIG_SOC_RENESAS=y
 CONFIG_ARCH_RCAR_GEN3=y
+CONFIG_ARCH_RZG2L=y
 # CONFIG_ARCH_R8A77995 is not set
 # CONFIG_ARCH_R8A77990 is not set
 CONFIG_ARCH_R8A77951=y
@@ -6221,7 +6439,7 @@ CONFIG_ARCH_R8A77980=y
 # CONFIG_ARCH_R8A774A1 is not set
 # CONFIG_ARCH_R8A774B1 is not set
 # CONFIG_ARCH_R9A07G043 is not set
-# CONFIG_ARCH_R9A07G044 is not set
+CONFIG_ARCH_R9A07G044=y
 # CONFIG_ARCH_R9A07G054 is not set
 # CONFIG_ARCH_R9A08G045 is not set
 # CONFIG_ARCH_R9A09G011 is not set
@@ -6456,6 +6674,7 @@ CONFIG_MESON_SARADC=y
 # CONFIG_QCOM_SPMI_ADC5 is not set
 # CONFIG_ROCKCHIP_SARADC is not set
 # CONFIG_RICHTEK_RTQ6056 is not set
+# CONFIG_RZG2L_ADC is not set
 # CONFIG_SD_ADC_MODULATOR is not set
 # CONFIG_SUN20I_GPADC is not set
 # CONFIG_TI_ADC081C is not set
@@ -6925,6 +7144,7 @@ CONFIG_ALPINE_MSI=y
 CONFIG_DW_APB_ICTL=y
 CONFIG_HISILICON_IRQ_MBIGEN=y
 CONFIG_RENESAS_IRQC=y
+CONFIG_RENESAS_RZG2L_IRQC=y
 CONFIG_SUN6I_R_INTC=y
 CONFIG_SUNXI_NMI_INTC=y
 # CONFIG_XILINX_INTC is not set
@@ -6950,6 +7170,7 @@ CONFIG_RESET_MESON=y
 # CONFIG_RESET_MESON_AUDIO_ARB is not set
 # CONFIG_RESET_QCOM_AOSS is not set
 # CONFIG_RESET_QCOM_PDC is not set
+# CONFIG_RESET_RZG2L_USBPHY_CTRL is not set
 CONFIG_RESET_SIMPLE=y
 CONFIG_RESET_SUNXI=y
 # CONFIG_RESET_TI_SYSCON is not set
