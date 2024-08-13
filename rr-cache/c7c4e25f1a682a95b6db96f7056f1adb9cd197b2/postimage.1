@@ -252,13 +252,9 @@ void xe_display_irq_handler(struct xe_device *xe, u32 master_ctl)
 
 void xe_display_irq_enable(struct xe_device *xe, u32 gu_misc_iir)
 {
-<<<<<<<
-	if (!xe->info.probe_display)
-=======
 	struct intel_display *display = &xe->display;
 
-	if (!xe->info.enable_display)
->>>>>>>
+	if (!xe->info.probe_display)
 		return;
 
 	if (gu_misc_iir & GU_MISC_GSE)
@@ -345,13 +341,9 @@ void xe_display_pm_resume_early(struct xe_device *xe)
 
 void xe_display_pm_resume(struct xe_device *xe, bool runtime)
 {
-<<<<<<<
-	if (!xe->info.probe_display)
-=======
 	struct intel_display *display = &xe->display;
 
-	if (!xe->info.enable_display)
->>>>>>>
+	if (!xe->info.probe_display)
 		return;
 
 	intel_dmc_resume(xe);
