@@ -11,3 +11,19 @@ index 3551a9c8eb75..e65e7d70f989 100644
  }
  
  void xe_display_pm_runtime_suspend(struct xe_device *xe)
+diff --git a/drivers/gpu/drm/xe/xe_gt_idle.c b/drivers/gpu/drm/xe/xe_gt_idle.c
+index 531924b6c0a1..746812aee8ff 100644
+--- a/drivers/gpu/drm/xe/xe_gt_idle.c
++++ b/drivers/gpu/drm/xe/xe_gt_idle.c
+@@ -53,11 +53,6 @@ pc_to_xe(struct xe_guc_pc *pc)
+ 	return gt_to_xe(gt);
+ }
+ 
+-static inline const char *str_up_down(bool v)
+-{
+-	return v ? "up" : "down";
+-}
+-
+ static const char *gt_idle_state_to_string(enum xe_gt_idle_state state)
+ {
+ 	switch (state) {
