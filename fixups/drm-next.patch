@@ -1,0 +1,13 @@
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 59b53651a997..f85816daa10f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2665,7 +2665,7 @@ static int amdgpu_device_parse_gpu_info_fw(struct amdgpu_device *adev)
+ 		chip_name = "navi12";
+ 		break;
+ 	case CHIP_CYAN_SKILLFISH:
+-		if (adev->mman.discovery_bin)
++		if (adev->discovery.bin)
+ 			return 0;
+ 		chip_name = "cyan_skillfish";
+ 		break;
