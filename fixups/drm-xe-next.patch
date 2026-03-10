@@ -17,3 +17,16 @@ index ec85a2bbe581..50f5d3381b4c 100644
  	{ XE_RTP_NAME("14021490052"),
  	  XE_RTP_RULES(GRAPHICS_VERSION(2001), ENGINE_CLASS(RENDER)),
  	  XE_RTP_ACTIONS(SET(FF_MODE,
+diff --git a/drivers/gpu/drm/xe/xe_lrc.c b/drivers/gpu/drm/xe/xe_lrc.c
+index c038ee1dce9d4..3851034f831ae 100644
+--- a/drivers/gpu/drm/xe/xe_lrc.c
++++ b/drivers/gpu/drm/xe/xe_lrc.c
+@@ -1557,7 +1557,7 @@ static int xe_lrc_ctx_init(struct xe_lrc *lrc, struct xe_hw_engine *hwe, struct
+ 	if (init_flags & XE_LRC_DISABLE_STATE_CACHE_PERF_FIX) {
+ 		state_cache_perf_fix[0] = MI_LOAD_REGISTER_IMM | MI_LRI_NUM_REGS(1);
+ 		state_cache_perf_fix[1] = COMMON_SLICE_CHICKEN3.addr;
+-		state_cache_perf_fix[2] = _MASKED_BIT_ENABLE(DISABLE_STATE_CACHE_PERF_FIX);
++		state_cache_perf_fix[2] = REG_MASKED_FIELD_ENABLE(DISABLE_STATE_CACHE_PERF_FIX);
+ 		xe_lrc_write_ring(lrc, state_cache_perf_fix, sizeof(state_cache_perf_fix));
+ 	}
+ 
