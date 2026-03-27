@@ -1,0 +1,13 @@
+diff --git a/drivers/gpu/drm/xe/xe_ggtt.c b/drivers/gpu/drm/xe/xe_ggtt.c
+index 33337aa70e04..21071b64b09d 100644
+--- a/drivers/gpu/drm/xe/xe_ggtt.c
++++ b/drivers/gpu/drm/xe/xe_ggtt.c
+@@ -445,7 +445,7 @@ int xe_ggtt_init_early(struct xe_ggtt *ggtt)
+ 		return err;
+ 
+ 	ggtt->flags |= XE_GGTT_FLAGS_ONLINE;
+-	return 0;
++	return devm_add_action_or_reset(xe->drm.dev, dev_fini_ggtt, ggtt);
+ }
+ ALLOW_ERROR_INJECTION(xe_ggtt_init_early, ERRNO); /* See xe_pci_probe() */
+ 
